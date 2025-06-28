@@ -1,0 +1,31 @@
+# Terraform state e arquivos gerados
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
+crash.log
+*.tfvars
+*.tfvars.json
+.terraform.lock.hcl
+
+# Chaves privadas e credenciais
+*.pem
+*.key
+id_rsa
+
+# Arquivos de ambiente
+.env
+backup/
+
+# Arquivos de Imagens Docker salvas
+*.tar
+
+# Diretório do ambiente virtual Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos específicos do sistema operacional
+.DS_Store
+Thumbs.db
