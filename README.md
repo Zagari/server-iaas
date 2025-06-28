@@ -20,7 +20,6 @@ Este projeto provisiona uma infraestrutura completa na AWS usando Terraform. Ele
 - Security Group com portas liberadas: `22`(SSH), `80` (HTTP), `443` (HTTPS), `25565` (Minecraft)
 - Script de inicialização para instalação do Docker
 - Scripts para iniciar/parar a instância manualmente
-- Atualização automática de DNS no Cloudflare como IP Público atribuído pela AWS
 
 ---
 
@@ -30,12 +29,15 @@ Este projeto provisiona uma infraestrutura completa na AWS usando Terraform. Ele
 - Chave SSH criada e pública disponível em `~/.ssh/id_rsa.pub`
 - [Terraform](https://developer.hashicorp.com/terraform/install) instalado (`>= 1.5`)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) instalado
-- Suba seus secrets no Parameter Store (via AWS Console ou CLI):
+- Se precisar, suba seus secrets no Parameter Store (via AWS Console ou CLI):
+```bash
+
 aws ssm put-parameter --name "cloudflare_api_token" --value "SEU_TOKEN" --type "SecureString"
 aws ssm put-parameter --name "cloudflare_zone_id" --value "..." --type "SecureString"
 aws ssm put-parameter --name "cloudflare_record_id" --value "..." --type "SecureString"
 aws ssm put-parameter --name "cloudflare_record_name" --value "..." --type "SecureString"
 
+```
 ---
 
 ## 📁 Estrutura
@@ -49,21 +51,7 @@ aws ssm put-parameter --name "cloudflare_record_name" --value "..." --type "Secu
 ├── user_data.sh         # Script inicial da EC2 para instalar Docker e rodar containers
 ├── stop.sh              # Script para parar a instância manualmente
 ├── start.sh             # Script para iniciar a instância manualmente
-├── updt-service/        # Serviço Docker que atualiza o IP no Cloudflare
-│   ├── Dockerfile
-│   ├── update_cloudflare.sh
-│   └── .env             # Variáveis para desenvolvimento local (não usado em produção)
-├── docker-compose.yml   # Compose usado na instância para iniciar containers
 ```
-
----
-
-🌐 Atualização automática de DNS no Cloudflare
-	•	A instância EC2 roda um container Docker que verifica periodicamente o IP público atual e atualiza o DNS do seu domínio no Cloudflare.
-	•	O script está containerizado com Alpine Linux, curl, jq e um loop que executa a cada 5 minutos.
-	•	As credenciais sensíveis (como CLOUDFLARE_API_TOKEN, ZONE_ID e RECORD_ID) são armazenadas com segurança no AWS Systems Manager Parameter Store (SSM).
-	•	A instância EC2 tem permissão (via IAM Role) para ler esses parâmetros protegidos no SSM na inicialização.
-	•	Isso elimina a necessidade de usar Elastic IP, reduzindo custos, e mantém o apontamento de domínio sempre atualizado com o IP público mais recente.
   
 ---
 
