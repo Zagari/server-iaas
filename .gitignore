@@ -5,7 +5,6 @@ terraform.tfstate.backup
 crash.log
 *.tfvars
 *.tfvars.json
-.terraform.lock.hcl
 
 # Chaves privadas e credenciais
 *.pem
