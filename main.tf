@@ -54,9 +54,8 @@ resource "aws_security_group" "castellabate_sg" {
   }
 }
 
-resource "aws_eip" "castellabate_ip" {
-  instance = aws_instance.castellabate.id
-}
+
+
 
 resource "aws_instance" "castellabate" {
   ami                         = "ami-050499786ebf55a6a" # Ubuntu Server 22.04 LTS ARM64

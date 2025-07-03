@@ -1,41 +1,54 @@
 #!/bin/bash
+# Sai imediatamente se qualquer comando falhar
 set -e
 
-# Atualiza pacotes
-apt-get update && apt-get upgrade -y
+echo "--- Iniciando script de User Data ---"
 
-# Instala pacotes básicos
+# 1. ATUALIZAÇÃO DO SISTEMA
+echo "Atualizando pacotes do sistema..."
+apt-get update -y
+apt-get upgrade -y
+
+# 2. INSTALAÇÃO DE DEPENDÊNCIAS BÁSICAS
+echo "Instalando dependências (curl, gnupg, git)..."
 apt-get install -y \
     ca-certificates \
     curl \
     gnupg \
-    lsb-release \
-    docker.io docker-compose git
+    git
 
+# 3. LIMPEZA DE VERSÕES ANTIGAS DO DOCKER (garante um ambiente limpo)
+echo "Removendo versões antigas do Docker, se existirem..."
+apt-get remove -y docker docker-engine docker.io containerd runc || true
 
-# Adiciona chave GPG do Docker
-mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
-  gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+# 4. INSTALAÇÃO DO DOCKER A PARTIR DO REPOSITÓRIO OFICIAL
+echo "Configurando o repositório oficial do Docker..."
+# Cria o diretório de chaves com as permissões corretas
+install -m 0755 -d /etc/apt/keyrings
+# Baixa e adiciona a chave GPG do Docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+# Garante que a chave seja legível por todos
+chmod a+r /etc/apt/keyrings/docker.gpg
 
-# Adiciona repositório do Docker
+# Adiciona o repositório do Docker à lista de fontes do APT
 echo \
-  "deb [arch=arm64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Instala Docker Engine e Compose
-apt-get update
+# 5. INSTALAÇÃO DO DOCKER ENGINE
+echo "Instalando Docker Engine..."
+apt-get update -y
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Adiciona usuário ubuntu ao grupo docker
+# 6. CONFIGURAÇÃO PÓS-INSTALAÇÃO
+echo "Configurando Docker para o usuário ubuntu..."
+# Adiciona o usuário 'ubuntu' ao grupo 'docker' para executar comandos docker sem sudo
 usermod -aG docker ubuntu
 
-# Habilita o Docker na inicialização
-systemctl enable docker
-systemctl start docker
 
-# Cria diretório para containers
-mkdir -p /home/ubuntu/containers
-chown ubuntu:ubuntu /home/ubuntu/containers
+# Habilita o serviço Docker para iniciar no boot
+systemctl enable docker.service
+systemctl start docker.service
 
+echo "--- Script de User Data concluído com sucesso! ---"
