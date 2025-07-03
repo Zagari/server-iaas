@@ -15,7 +15,8 @@ apt-get install -y \
     ca-certificates \
     curl \
     gnupg \
-    git
+    git \
+    python3-pip
 
 # 3. LIMPEZA DE VERSÕES ANTIGAS DO DOCKER (garante um ambiente limpo)
 echo "Removendo versões antigas do Docker, se existirem..."
@@ -41,12 +42,14 @@ echo "Instalando Docker Engine..."
 apt-get update -y
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# 6. CONFIGURAÇÃO PÓS-INSTALAÇÃO
+# 6. INSTALAÇÃO DE DEPENDÊNCIAS PYTHON PARA ANSIBLE
+echo "Instalando bibliotecas Python para os módulos Docker do Ansible..."
+pip3 install docker docker-compose
+
+# 7. CONFIGURAÇÃO PÓS-INSTALAÇÃO
 echo "Configurando Docker para o usuário ubuntu..."
 # Adiciona o usuário 'ubuntu' ao grupo 'docker' para executar comandos docker sem sudo
 usermod -aG docker ubuntu
-
-
 # Habilita o serviço Docker para iniciar no boot
 systemctl enable docker.service
 systemctl start docker.service
