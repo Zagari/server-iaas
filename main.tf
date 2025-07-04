@@ -83,7 +83,7 @@ resource "aws_instance" "castellabate" {
   instance_market_options {
     market_type = "spot"
     spot_options {
-      max_price                    = "0.0259"
+      max_price                    = "0.0272"
       spot_instance_type          = "persistent"
       instance_interruption_behavior = "stop"
     }
